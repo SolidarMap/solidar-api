@@ -37,4 +37,22 @@ public class UsuarioController {
         }
         return usuarios;
     }
+
+    @Operation(summary = "Buscar usuário por email")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso."),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "Email não pode ser nulo ou vazio.", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @GetMapping("/buscarPorEmail")
+    public UsuarioProjection retornaUsuarioPorEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O email não pode ser nulo ou vazio.");
+        }
+        UsuarioProjection usuario = usuarioRepository.findByEmail(email);
+        if (usuario == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado com o email: " + email);
+        }
+        return usuario;
+    }
 }
