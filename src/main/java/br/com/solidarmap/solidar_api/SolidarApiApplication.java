@@ -15,10 +15,10 @@ public class SolidarApiApplication {
 
 	public static void main(String[] args) {
 		Dotenv dotenv = Dotenv.configure().load();
-		System.setProperty("ORACLE_URL", dotenv.get("ORACLE_URL"));
-		System.setProperty("ORACLE_USER", dotenv.get("ORACLE_USER"));
-		System.setProperty("ORACLE_PASSWORD", dotenv.get("ORACLE_PASSWORD"));
-		System.setProperty("ORACLE_DRIVER", dotenv.get("ORACLE_DRIVER"));
+		System.setProperty("SPRING_DATASOURCE_URL", dotenv.get("SPRING_DATASOURCE_URL"));
+		System.setProperty("SPRING_DATASOURCE_USERNAME", dotenv.get("SPRING_DATASOURCE_USERNAME"));
+		System.setProperty("SPRING_DATASOURCE_PASSWORD", dotenv.get("SPRING_DATASOURCE_PASSWORD"));
+		System.setProperty("SPRING_DATASOURCE_DRIVER", dotenv.get("SPRING_DATASOURCE_DRIVER"));
 
 		SpringApplication.run(SolidarApiApplication.class, args);
 	}
