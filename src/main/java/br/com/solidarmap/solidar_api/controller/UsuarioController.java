@@ -1,6 +1,7 @@
 package br.com.solidarmap.solidar_api.controller;
 
 import br.com.solidarmap.solidar_api.model.Usuario;
+import br.com.solidarmap.solidar_api.projection.UsuarioProjection;
 import br.com.solidarmap.solidar_api.repository.UsuarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -8,9 +9,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,11 +26,15 @@ public class UsuarioController {
 
     @Operation(summary = "Listar todos os usuários")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado", content = @Content(schema = @Schema(hidden = true)))
+            @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso."),
+            @ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado.", content = @Content(schema = @Schema(hidden = true)))
     })
     @GetMapping("/todos")
-    public List<Usuario> retornaTodosUsuarios() {
-        return usuarioRepository.findAll();
+    public List<UsuarioProjection> retornaTodosUsuarios() {
+        List<UsuarioProjection> usuarios = usuarioRepository.findAllUsuarios();
+        if (usuarios.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum usuário encontrado.");
+        }
+        return usuarios;
     }
 }
