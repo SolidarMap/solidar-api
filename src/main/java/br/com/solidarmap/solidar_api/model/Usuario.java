@@ -18,7 +18,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_USUARIO")
+    @Column(name = "ID_USUARIO", precision = 10, scale = 0)
     private Long id;
 
     @ManyToOne
