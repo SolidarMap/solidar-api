@@ -55,4 +55,22 @@ public class UsuarioController {
         }
         return usuario;
     }
+
+    @Operation(summary = "Buscar usuário por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso."),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "ID do usuário não pode ser nulo ou menor que 1.", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @GetMapping("/buscarPorId")
+    public UsuarioProjection retornaUsuarioPorId(Long id) {
+        if (id == null || id <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID do usuário não pode ser nulo ou menor que 1.");
+        }
+        UsuarioProjection usuario = usuarioRepository.findUsuarioById(id);
+        if (usuario == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado com o ID: " + id);
+        }
+        return usuario;
+    }
 }
