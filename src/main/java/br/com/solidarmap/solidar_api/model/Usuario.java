@@ -22,19 +22,19 @@ public class Usuario {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "ID_TIPO_USUARIO")
+    @JoinColumn(name = "ID_TIPO_USUARIO", nullable = false, foreignKey = @ForeignKey(name = "FK_USUARIO_TIPO_USUARIO"))
     private TipoUsuario tipoUsuario;
 
-    @Column(name = "NOME")
+    @Column(name = "NOME", length = 100, nullable = false)
     private String nome;
 
-    @Column(name = "EMAIL")
+    @Column(name = "EMAIL", length = 100, unique = true, nullable = false)
     private String email;
 
-    @Column(name = "SENHA")
+    @Column(name = "SENHA", length = 128, nullable = false)
     private String senha;
 
-    @Column(name = "DATA_CRIACAO")
+    @Column(name = "DATA_CRIACAO", nullable = false)
     private LocalDateTime dataCriacao;
 
 }
