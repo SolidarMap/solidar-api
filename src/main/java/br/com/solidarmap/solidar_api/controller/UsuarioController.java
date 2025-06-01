@@ -41,6 +41,9 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private TipoUsuarioRepository tipoUsuarioRepository;
+
     @Operation(summary = "Listar todos os usuários")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso."),
@@ -148,6 +151,46 @@ public class UsuarioController {
         }
 
         return ResponseEntity.ok(paginas_usuarios_dto);
+    }
+
+    @Operation(summary = "Inserir um novo usuário")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Usuário inserido com sucesso."),
+            @ApiResponse(responseCode = "400", description = "Campos obrigatórios não preenchidos ou inválidos.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", description = "Já existe um usuário cadastrado com o email informado. ", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Tipo de usuário não encontrado.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PostMapping("/inserir")
+    public Usuario inserirUsuario(@RequestBody InserirUsuarioRequestDTO usuario) {
+        if (usuario.getTipoUsuarioId() == null ||
+                usuario.getNome() == null ||
+                usuario.getEmail() == null ||
+                usuario.getSenha() == null ||
+                usuario.getDataCriacao() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Todos os campos de usuário são obrigatórios.");
+        }
+
+        Optional<TipoUsuario> TipoUsuarioOptional = tipoUsuarioRepository.findById(usuario.getTipoUsuarioId());
+        if (TipoUsuarioOptional.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tipo de usuário não encontrado.");
+        }
+
+        if (usuarioRepository.findByEmail(usuario.getEmail()) != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um usuário cadastrado com o email: " + usuario.getEmail());
+        }
+
+        Usuario novoUsuario = new Usuario();
+        novoUsuario.setTipoUsuario(TipoUsuarioOptional.get());
+        novoUsuario.setNome(usuario.getNome());
+        novoUsuario.setEmail(usuario.getEmail());
+        novoUsuario.setSenha(usuario.getSenha());
+        novoUsuario.setDataCriacao(usuario.getDataCriacao());
+
+        Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
+        usuarioCachingService.limparCache();
+        return usuarioSalvo;
     }
 
 }
