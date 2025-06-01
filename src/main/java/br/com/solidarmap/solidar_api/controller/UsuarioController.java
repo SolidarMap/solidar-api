@@ -3,6 +3,7 @@ package br.com.solidarmap.solidar_api.controller;
 import br.com.solidarmap.solidar_api.dto.UsuarioDTO;
 import br.com.solidarmap.solidar_api.repository.UsuarioRepository;
 import br.com.solidarmap.solidar_api.service.UsuarioCachingService;
+import br.com.solidarmap.solidar_api.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,9 +11,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,6 +32,9 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioCachingService usuarioCachingService;
+
+    @Autowired
+    private UsuarioService usuarioService;
 
     @Operation(summary = "Listar todos os usuários")
     @ApiResponses(value = {
@@ -98,6 +106,32 @@ public class UsuarioController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum usuário encontrado no cache.");
         }
         return usuarios;
+    }
+
+    @Operation(summary = "Retorna os usuários paginados em cache")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuários paginados retornados com sucesso."),
+            @ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/cache/todos-paginados")
+    public ResponseEntity<Page<UsuarioDTO>> paginarUsuariosCache(
+            @RequestParam(value = "pagina", defaultValue = "0") Integer page,
+            @RequestParam(value = "tamanho", defaultValue = "2") Integer size) {
+
+        if(page < 0 || size < 0){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Parâmetros de paginação inválidos.");
+        }
+
+        PageRequest pr = PageRequest.of(page, size);
+        Page<UsuarioDTO> paginas_usuarios_dto = usuarioService.paginarTodosOsUsuarios(pr);
+
+        if (paginas_usuarios_dto.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum usuário encontrado.");
+        }
+
+        return ResponseEntity.ok(paginas_usuarios_dto);
     }
 
 }
