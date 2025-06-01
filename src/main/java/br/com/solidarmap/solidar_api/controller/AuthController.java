@@ -2,6 +2,8 @@ package br.com.solidarmap.solidar_api.controller;
 
 import br.com.solidarmap.solidar_api.dto.JWTLoginRequestDTO;
 import br.com.solidarmap.solidar_api.dto.JWTLoginResponseDTO;
+import br.com.solidarmap.solidar_api.dto.JWTValidarTokenRequestDTO;
+import br.com.solidarmap.solidar_api.dto.JWTValidarTokenResponseDTO;
 import br.com.solidarmap.solidar_api.security.JWTUtil;
 import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,5 +58,36 @@ public class AuthController {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas");
         }
+    }
+
+
+    @Operation(summary = "Verificar se o token é válido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token válido."),
+            @ApiResponse(responseCode = "401", description = "Token inválido ou expirado.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado ao validar token.", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @PostMapping("/validarToken")
+    public JWTValidarTokenResponseDTO verificarToken(@RequestBody JWTValidarTokenRequestDTO token) {
+        boolean statusToken;
+        try {
+            statusToken = jwtUtil.validarToken(token.getToken());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro inesperado ao validar token: " + e.getMessage());
+        }
+
+        if (!statusToken) {
+            return new JWTValidarTokenResponseDTO(
+                    token.getToken(),
+                    false,
+                    "Token inválido ou expirado."
+            );
+        }
+
+        return new JWTValidarTokenResponseDTO(
+                token.getToken(),
+                true,
+                "Token válido."
+        );
     }
 }
