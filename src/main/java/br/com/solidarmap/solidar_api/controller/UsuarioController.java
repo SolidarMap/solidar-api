@@ -1,8 +1,8 @@
 package br.com.solidarmap.solidar_api.controller;
 
-import br.com.solidarmap.solidar_api.model.Usuario;
-import br.com.solidarmap.solidar_api.projection.UsuarioProjection;
+import br.com.solidarmap.solidar_api.dto.UsuarioDTO;
 import br.com.solidarmap.solidar_api.repository.UsuarioRepository;
+import br.com.solidarmap.solidar_api.service.UsuarioCachingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,6 +24,9 @@ public class UsuarioController {
 
 	@Autowired
 	private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private UsuarioCachingService usuarioCachingService;
 
     @Operation(summary = "Listar todos os usuários")
     @ApiResponses(value = {
@@ -79,6 +82,22 @@ public class UsuarioController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado com o ID: " + id);
         }
         return usuario;
+    }
+
+    @Operation(summary = "Listar todos os usuários em cache")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de usuários em cache retornada com sucesso."),
+            @ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado no cache.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/cache/todos")
+    public List<UsuarioDTO> retornaTodosUsuariosEmCache() {
+        List<UsuarioDTO> usuarios = usuarioCachingService.findAllUsuarios();
+        if (usuarios.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum usuário encontrado no cache.");
+        }
+        return usuarios;
     }
 
 }
