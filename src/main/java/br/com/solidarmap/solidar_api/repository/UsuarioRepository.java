@@ -1,7 +1,7 @@
 package br.com.solidarmap.solidar_api.repository;
 
+import br.com.solidarmap.solidar_api.dto.UsuarioDTO;
 import br.com.solidarmap.solidar_api.model.Usuario;
-import br.com.solidarmap.solidar_api.projection.UsuarioProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,7 +19,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     FROM Usuario u
     JOIN u.tipoUsuario
     """)
-    List<UsuarioProjection> findAllUsuarios();
+    List<UsuarioDTO> findAllUsuarios();
 
     @Query("""
     SELECT u.id AS id,
@@ -31,7 +31,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     JOIN u.tipoUsuario
     WHERE u.email = :email
     """)
-    UsuarioProjection findByEmail(@Param("email") String email);
+    UsuarioDTO findByEmail(@Param("email") String email);
 
     @Query("""
     SELECT u.id AS id,
@@ -43,5 +43,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     JOIN u.tipoUsuario
     WHERE u.id = :id
     """)
-    UsuarioProjection findUsuarioById(@Param("id") Long id);
+    UsuarioDTO findUsuarioById(@Param("id") Long id);
 }
