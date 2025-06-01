@@ -1,9 +1,6 @@
 package br.com.solidarmap.solidar_api.security;
 
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +22,14 @@ public class JWTUtil {
                 .expiration(new Date(data_atual.getTime() + (3600000)))
                 .signWith(secretKey);
         return builder.compact();
+    }
+
+    public Claims extrairClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     public String extrairEmail(String token) {
