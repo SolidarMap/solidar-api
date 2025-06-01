@@ -1,6 +1,10 @@
 package br.com.solidarmap.solidar_api.controller;
 
+import br.com.solidarmap.solidar_api.dto.InserirUsuarioRequestDTO;
 import br.com.solidarmap.solidar_api.dto.UsuarioDTO;
+import br.com.solidarmap.solidar_api.model.TipoUsuario;
+import br.com.solidarmap.solidar_api.model.Usuario;
+import br.com.solidarmap.solidar_api.repository.TipoUsuarioRepository;
 import br.com.solidarmap.solidar_api.repository.UsuarioRepository;
 import br.com.solidarmap.solidar_api.service.UsuarioCachingService;
 import br.com.solidarmap.solidar_api.service.UsuarioService;
@@ -14,15 +18,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/usuario")
@@ -113,6 +116,7 @@ public class UsuarioController {
     @Operation(summary = "Retorna os usuários paginados em cache")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuários paginados retornados com sucesso."),
+            @ApiResponse(responseCode = "400", description = "Parâmetros de paginação inválidos. | Campo de ordenação inválido.", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado.", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
     })
@@ -120,13 +124,23 @@ public class UsuarioController {
     @GetMapping("/cache/todos-paginados")
     public ResponseEntity<Page<UsuarioDTO>> paginarUsuariosCache(
             @RequestParam(value = "pagina", defaultValue = "0") Integer page,
-            @RequestParam(value = "tamanho", defaultValue = "2") Integer size) {
+            @RequestParam(value = "tamanho", defaultValue = "2") Integer size,
+            @RequestParam(value = "ordenacao", defaultValue = "id,asc") String sort) {
+
+        List<String> camposPermitidos = List.of("id", "dataCricacao", "nome", "email", "tipoUsuario");
+        String[] partes = sort.split(",");
+        String campo = partes[0];
+        Sort.Direction direcao = partes.length > 1 && partes[1].equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        if (!camposPermitidos.contains(campo)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Campo de ordenação inválido.");
+        }
 
         if(page < 0 || size < 0){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Parâmetros de paginação inválidos.");
         }
 
-        PageRequest pr = PageRequest.of(page, size);
+        PageRequest pr = PageRequest.of(page, size, Sort.by(direcao, campo));
         Page<UsuarioDTO> paginas_usuarios_dto = usuarioService.paginarTodosOsUsuarios(pr);
 
         if (paginas_usuarios_dto.isEmpty()) {
