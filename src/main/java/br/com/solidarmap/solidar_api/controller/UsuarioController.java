@@ -33,8 +33,8 @@ public class UsuarioController {
     })
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/todos")
-    public List<UsuarioProjection> retornaTodosUsuarios() {
-        List<UsuarioProjection> usuarios = usuarioRepository.findAllUsuarios();
+    public List<UsuarioDTO> retornaTodosUsuarios() {
+        List<UsuarioDTO> usuarios = usuarioRepository.findAllUsuarios();
         if (usuarios.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum usuário encontrado.");
         }
@@ -50,11 +50,11 @@ public class UsuarioController {
     })
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/buscarPorEmail")
-    public UsuarioProjection retornaUsuarioPorEmail(String email) {
+    public UsuarioDTO retornaUsuarioPorEmail(String email) {
         if (email == null || email.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O email não pode ser nulo ou vazio.");
         }
-        UsuarioProjection usuario = usuarioRepository.findByEmail(email);
+        UsuarioDTO usuario = usuarioRepository.findByEmail(email);
         if (usuario == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado com o email: " + email);
         }
@@ -70,11 +70,11 @@ public class UsuarioController {
     })
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/buscarPorId")
-    public UsuarioProjection retornaUsuarioPorId(Long id) {
+    public UsuarioDTO retornaUsuarioPorId(Long id) {
         if (id == null || id <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID do usuário não pode ser nulo ou menor que 1.");
         }
-        UsuarioProjection usuario = usuarioRepository.findUsuarioById(id);
+        UsuarioDTO usuario = usuarioRepository.findUsuarioById(id);
         if (usuario == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado com o ID: " + id);
         }
