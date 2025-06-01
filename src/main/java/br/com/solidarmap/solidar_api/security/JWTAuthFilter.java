@@ -36,7 +36,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
     private static final List<String> PUBLIC_PATHS = List.of(
             "/swagger-ui", "/v3/api-docs", "/swagger-resources", "/webjars",
-            "/configuration/ui", "/configuration/security", "/auth"
+            "/configuration/ui", "/configuration/security", "/auth", "/auth/login", "auth/validarToken"
     );
 
     private boolean isPublicPath(String path) {
