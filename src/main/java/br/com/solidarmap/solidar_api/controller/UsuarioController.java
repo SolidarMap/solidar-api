@@ -2,6 +2,7 @@ package br.com.solidarmap.solidar_api.controller;
 
 import br.com.solidarmap.solidar_api.dto.InserirUsuarioRequestDTO;
 import br.com.solidarmap.solidar_api.dto.UsuarioDTO;
+import br.com.solidarmap.solidar_api.dto.UsuarioRequestDTO;
 import br.com.solidarmap.solidar_api.model.TipoUsuario;
 import br.com.solidarmap.solidar_api.model.Usuario;
 import br.com.solidarmap.solidar_api.repository.TipoUsuarioRepository;
@@ -193,5 +194,60 @@ public class UsuarioController {
         Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
         usuarioCachingService.limparCache();
         return usuarioSalvo;
+    }
+
+    @Operation(summary = "Atualizar um usuário")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso."),
+            @ApiResponse(responseCode = "404", description = "Tipo de Usuário não encontrado. | Usuário não encontrado com ID informado.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", description = "Já existe um usuário cadastrado com o e-mail fornecido.", content = @Content(schema = @Schema(hidden = true))),
+    })
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PutMapping("/atualizar/{id}")
+    public Usuario atualizarUsuario(@RequestBody UsuarioRequestDTO usuarioRequestDTO, @PathVariable Long id) {
+        Optional<Usuario> op = usuarioCachingService.findUsuarioById(id);
+
+        if(op.isPresent()) {
+            Usuario usuarioAtual = op.get();
+
+            // Atualiza tipo de usuário se informado
+            if (usuarioRequestDTO.getTipoUsuarioId() != null) {
+                Optional<TipoUsuario> tipoUsuarioOpt = tipoUsuarioRepository.findById(usuarioRequestDTO.getTipoUsuarioId());
+                if (tipoUsuarioOpt.isEmpty()) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tipo de usuário não encontrado.");
+                }
+                usuarioAtual.setTipoUsuario(tipoUsuarioOpt.get());
+            }
+
+            // Atualiza nome se informado
+            if (usuarioRequestDTO.getNome() != null) {
+                usuarioAtual.setNome(usuarioRequestDTO.getNome());
+            }
+
+            // Atualiza email se informado e não duplicado
+            if (usuarioRequestDTO.getEmail() != null && !usuarioAtual.getEmail().equals(usuarioRequestDTO.getEmail())) {
+                if (usuarioRepository.findByEmail(usuarioRequestDTO.getEmail()) != null) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um usuário cadastrado com o email: " + usuarioRequestDTO.getEmail());
+                }
+                usuarioAtual.setEmail(usuarioRequestDTO.getEmail());
+            }
+
+            // Atualiza senha se informada
+            if (usuarioRequestDTO.getSenha() != null) {
+                usuarioAtual.setSenha(usuarioRequestDTO.getSenha());
+            }
+
+            // Atualiza data de criação se informada
+            if (usuarioRequestDTO.getDataCriacao() != null) {
+                usuarioAtual.setDataCriacao(usuarioRequestDTO.getDataCriacao());
+            }
+
+            usuarioRepository.save(usuarioAtual);
+            usuarioCachingService.limparCache();
+            return usuarioAtual;
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado com o ID: " + id);
+        }
     }
 }
