@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UsuarioCachingService {
@@ -28,7 +29,12 @@ public class UsuarioCachingService {
         return usuarioRepository.findAll(req);
     }
 
-    @CacheEvict(value = "buscarTodosUsuarios", allEntries = true)
+    @Cacheable(value = "buscarUsuarioPorId", key = "#id")
+    public Optional<Usuario> findUsuarioById(Long id) {
+        return usuarioRepository.findById(id);
+    }
+
+    @CacheEvict(value = {"buscarTodosUsuarios", "buscarPaginasUsuarios", "buscarUsuarioPorId"}, allEntries = true)
     public void limparCache() {
         System.out.println("Cache de usuários limpo com sucesso.");
     }
