@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -68,8 +69,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
     })
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/buscarPorEmail")
-    public UsuarioDTO retornaUsuarioPorEmail(String email) {
+    @GetMapping("/buscarPorEmail/{email}")
+    public UsuarioDTO retornaUsuarioPorEmail(@PathVariable String email) {
         if (email == null || email.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O email não pode ser nulo ou vazio.");
         }
@@ -88,8 +89,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
     })
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/buscarPorId")
-    public UsuarioDTO retornaUsuarioPorId(Long id) {
+    @GetMapping("/buscarPorId/{id}")
+    public UsuarioDTO retornaUsuarioPorId(@PathVariable Long id) {
         if (id == null || id <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID do usuário não pode ser nulo ou menor que 1.");
         }
@@ -162,8 +163,9 @@ public class UsuarioController {
             @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
     })
     @SecurityRequirement(name = "Bearer Authentication")
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/inserir")
-    public Usuario inserirUsuario(@RequestBody InserirUsuarioRequestDTO usuario) {
+    public Usuario inserirUsuario(@RequestBody  @Valid InserirUsuarioRequestDTO usuario) {
         if (usuario.getTipoUsuarioId() == null ||
                 usuario.getNome() == null ||
                 usuario.getEmail() == null ||
@@ -192,5 +194,4 @@ public class UsuarioController {
         usuarioCachingService.limparCache();
         return usuarioSalvo;
     }
-
 }
