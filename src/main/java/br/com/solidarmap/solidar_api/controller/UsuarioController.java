@@ -250,4 +250,26 @@ public class UsuarioController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado com o ID: " + id);
         }
     }
+
+    @Operation(summary = "Deletar um usuário")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso."),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado com o ID informado.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @SecurityRequirement(name = "Bearer Authentication")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/deletar/{id}")
+    public Usuario removerUsuario(@PathVariable Long id) {
+        Optional<Usuario> op = usuarioCachingService.findUsuarioById(id);
+
+        if (op.isPresent()) {
+            Usuario usuario = op.get();
+            usuarioRepository.delete(usuario);
+            usuarioCachingService.limparCache();
+            return usuario;
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado com o ID: " + id);
+        }
+    }
 }
