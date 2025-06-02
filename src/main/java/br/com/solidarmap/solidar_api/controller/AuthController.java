@@ -4,6 +4,8 @@ import br.com.solidarmap.solidar_api.dto.JWTLoginRequestDTO;
 import br.com.solidarmap.solidar_api.dto.JWTLoginResponseDTO;
 import br.com.solidarmap.solidar_api.dto.JWTValidarTokenRequestDTO;
 import br.com.solidarmap.solidar_api.dto.JWTValidarTokenResponseDTO;
+import br.com.solidarmap.solidar_api.model.Usuario;
+import br.com.solidarmap.solidar_api.repository.UsuarioRepository;
 import br.com.solidarmap.solidar_api.security.JWTUtil;
 import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,6 +35,8 @@ public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Operation(summary = "Solicitar token de autenticação")
     @ApiResponses(value = {
@@ -45,7 +49,11 @@ public class AuthController {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(login.getEmail(), login.getSenha())
             );
-            String token = jwtUtil.construirToken(login.getEmail());
+
+            Usuario usuario = usuarioRepository.findByEmailforAuth(login.getEmail())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não encontrado."));
+
+            String token = jwtUtil.construirToken(usuario);
             Claims claims = jwtUtil.extrairClaims(token);
 
             return new JWTLoginResponseDTO(
@@ -59,7 +67,6 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas");
         }
     }
-
 
     @Operation(summary = "Verificar se o token é válido")
     @ApiResponses(value = {

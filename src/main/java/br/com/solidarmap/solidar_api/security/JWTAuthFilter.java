@@ -1,5 +1,7 @@
 package br.com.solidarmap.solidar_api.security;
 
+import br.com.solidarmap.solidar_api.model.Usuario;
+import br.com.solidarmap.solidar_api.repository.UsuarioRepository;
 import io.swagger.v3.oas.models.OpenAPI;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,6 +32,9 @@ public class JWTAuthFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     JWTAuthFilter(OpenAPI configurarSwagger) {
         this.configurarSwagger = configurarSwagger;
     }
@@ -50,11 +55,10 @@ public class JWTAuthFilter extends OncePerRequestFilter {
                 {
                     "timestamp": "%s",
                     "status": %d,
-                    "error": "%s",
                     "message": "%s",
                     "path": "%s"
                 }
-                """, LocalDateTime.now(), statusCode, HttpStatus.valueOf(statusCode).getReasonPhrase(), mensagem, path));
+                """, LocalDateTime.now(), statusCode, mensagem, path));
     }
 
     @Override
@@ -72,10 +76,18 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         try {
             if (token != null && token.startsWith("Bearer ")) {
                 token = token.substring(7);
-                String email = jwtUtil.extrairEmail(token);
 
-                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                Long usuarioId = jwtUtil.extrairUsuariobyId(token);
+
+                if (usuarioId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    Usuario usuario = usuarioRepository.findById(usuarioId).orElse(null);
+
+                    if (usuario == null) {
+                        escreverErro(response, "Usuário não encontrado.", HttpStatus.FORBIDDEN.value(), path);
+                        return;
+                    }
+
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(usuario.getEmail());
 
                     if (jwtUtil.validarToken(token)) {
                         Authentication auth = new UsernamePasswordAuthenticationToken(
@@ -97,6 +109,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             escreverErro(response, "Token inválido ou expirado.", HttpStatus.FORBIDDEN.value(), path);
             return;
         }
+
 
         filterChain.doFilter(request, response);
     }
