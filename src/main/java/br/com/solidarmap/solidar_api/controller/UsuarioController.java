@@ -46,22 +46,6 @@ public class UsuarioController {
     @Autowired
     private TipoUsuarioRepository tipoUsuarioRepository;
 
-    @Operation(summary = "Listar todos os usuários")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso."),
-            @ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado.", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
-    })
-    @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/todos")
-    public List<UsuarioDTO> retornaTodosUsuarios() {
-        List<UsuarioDTO> usuarios = usuarioRepository.findAllUsuarios();
-        if (usuarios.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum usuário encontrado.");
-        }
-        return usuarios;
-    }
-
     @Operation(summary = "Buscar usuário por email")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso."),
@@ -70,7 +54,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
     })
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/buscarPorEmail/{email}")
+    @GetMapping("buscar/email/{email}")
     public UsuarioDTO retornaUsuarioPorEmail(@PathVariable String email) {
         if (email == null || email.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O email não pode ser nulo ou vazio.");
@@ -90,7 +74,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
     })
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/buscarPorId/{id}")
+    @GetMapping("buscar/id/{id}")
     public UsuarioDTO retornaUsuarioPorId(@PathVariable Long id) {
         if (id == null || id <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID do usuário não pode ser nulo ou menor que 1.");
@@ -109,7 +93,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
     })
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/cache/todos")
+    @GetMapping("listar/cache/todos")
     public List<UsuarioDTO> retornaTodosUsuariosEmCache() {
         List<UsuarioDTO> usuarios = usuarioCachingService.findAllUsuarios();
         if (usuarios.isEmpty()) {
@@ -126,7 +110,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
     })
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/cache/todos-paginados")
+    @GetMapping("/paginar/cache/todos")
     public ResponseEntity<Page<UsuarioDTO>> paginarUsuariosCache(
             @RequestParam(value = "pagina", defaultValue = "0") Integer page,
             @RequestParam(value = "tamanho", defaultValue = "2") Integer size,
