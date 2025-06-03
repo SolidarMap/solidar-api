@@ -20,8 +20,8 @@ public class TipoUsuarioService {
 
     @Transactional(readOnly = true)
     public Page<TipoUsuarioDTO> paginarTodosOsTiposDeUsuario(PageRequest req) {
-        Page<TipoUsuario> paginas_tipo_usuario = tipoUsuarioCachingService.findAll(req);
-        Page<TipoUsuarioDTO> paginar_tipos_usuarios_dto = paginas_tipo_usuario.map(TipoUsuarioDTO::new);
+        Page<TipoUsuarioDTO> paginar_tipos_usuarios_dto = tipoUsuarioCachingService.findAll(req)
+                .map(TipoUsuarioDTO::new);
         return paginar_tipos_usuarios_dto;
     }
 }
