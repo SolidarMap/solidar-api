@@ -68,7 +68,7 @@ public class TipoUsuarioController {
     @GetMapping("/paginar/cache/todos")
     public ResponseEntity<Page<TipoUsuarioDTO>> paginarTiposUsuarioCache(
             @RequestParam(value = "pagina", defaultValue = "0") Integer page,
-            @RequestParam(value = "tamanho", defaultValue = "10") Integer size,
+            @RequestParam(value = "tamanho", defaultValue = "2") Integer size,
             @RequestParam(value = "ordenacao", defaultValue = "id,asc") String sort) {
 
         List<String> camposPermitidos = List.of("id", "nomeTipo");
@@ -90,7 +90,6 @@ public class TipoUsuarioController {
         if (paginas_tipos_usuarios_dto.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum tipo de usuário encontrado no cache.");
         }
-
         return ResponseEntity.ok(paginas_tipos_usuarios_dto);
     }
 
@@ -123,7 +122,7 @@ public class TipoUsuarioController {
     @SecurityRequirement(name = "Bearer Authentication")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/inserir")
-    public TipoUsuario inserirTipoUsuario(@RequestBody @Valid InserirTipoUsuarioRequestDTO tipoUsuario) {
+    public TipoUsuario inserirTipoUsuario(@RequestBody InserirTipoUsuarioRequestDTO tipoUsuario) {
         if (tipoUsuario == null || tipoUsuario.getNomeTipo() == null || tipoUsuario.getNomeTipo().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome do Tipo de Usuário é obrigatório.");
         }
@@ -142,7 +141,7 @@ public class TipoUsuarioController {
             @ApiResponse(responseCode = "200", description = "Tipo de usuário atualizado com sucesso."),
             @ApiResponse(responseCode = "400", description = "Dados inválidos para atualização.", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "409", description = "Nome do Tipo de Usuário já existe.", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", description = "ID do Tipo de usuário não encontrado.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "ID do Tipo de Rsuário não encontrado.", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
     })
     @SecurityRequirement(name = "Bearer Authentication")
