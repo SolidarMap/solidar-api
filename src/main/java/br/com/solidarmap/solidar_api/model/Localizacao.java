@@ -3,6 +3,8 @@ package br.com.solidarmap.solidar_api.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @Setter
@@ -26,8 +28,8 @@ public class Localizacao {
     private TipoZona tipoZona;
 
     @Column(name = "LATITUDE", precision = 12, scale = 8, nullable = false)
-    private Double latitude;
+    private BigDecimal latitude;
 
     @Column(name = "LONGITUDE", precision = 12, scale = 8, nullable = false)
-    private Double longitude;
+    private BigDecimal longitude;
 }
