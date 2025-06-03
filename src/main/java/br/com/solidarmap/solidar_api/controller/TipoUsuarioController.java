@@ -1,9 +1,12 @@
 package br.com.solidarmap.solidar_api.controller;
 
 import br.com.solidarmap.solidar_api.dto.InserirTipoUsuarioRequestDTO;
+import br.com.solidarmap.solidar_api.dto.TipoUsuarioDTO;
 import br.com.solidarmap.solidar_api.dto.TipoUsuarioRequestDTO;
 import br.com.solidarmap.solidar_api.model.TipoUsuario;
 import br.com.solidarmap.solidar_api.repository.TipoUsuarioRepository;
+import br.com.solidarmap.solidar_api.service.TipoUsuarioCachingService;
+import br.com.solidarmap.solidar_api.service.TipoUsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,7 +16,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -28,20 +35,63 @@ public class TipoUsuarioController {
     @Autowired
     private TipoUsuarioRepository tipoUsuarioRepository;
 
-    @Operation(summary = "Listar todos os tipos de usuários")
+    @Autowired
+    private TipoUsuarioCachingService tipoUsuarioCachingService;
+
+    @Autowired
+    private TipoUsuarioService tipoUsuarioService;
+
+    @Operation(summary = "Listar todos os tipos de usuários em cacher")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de tipos de usuários retornada com sucesso."),
-            @ApiResponse(responseCode = "404", description = "Nenhum tipo de usuário encontrado.", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
+            @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Nenhum tipo de usuário encontrado no cache.", content = @Content(schema = @Schema(hidden = true)))
     })
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/todos")
-    public List<TipoUsuario> findAllTiposUsuarios() {
-        List<TipoUsuario> tiposUsuarios = tipoUsuarioRepository.findAll();
-        if (tiposUsuarios.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum tipo de usuário encontrado.");
+    @GetMapping("/listar/cache/todos")
+    public List<TipoUsuario> findAllTiposUsuarioEmCache() {
+        List<TipoUsuario> tiposUsuario = tipoUsuarioCachingService.findAllTiposUsuario();
+        if (tiposUsuario.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum tipo de usuário encontrado no cache.");
         }
-        return tiposUsuarios;
+        return tiposUsuario;
+    }
+
+    @Operation(summary = "Retorna os tipos de usuários paginados em cache")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de tipos de usuários paginada retornada com sucesso."),
+            @ApiResponse(responseCode = "400", description = "Parâmetros de paginação inválidos. | Campo de ordenação inválido.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Nenhum tipo de usuário encontrado no cache.", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/paginar/cache/todos")
+    public ResponseEntity<Page<TipoUsuarioDTO>> paginarTiposUsuarioCache(
+            @RequestParam(value = "pagina", defaultValue = "0") Integer page,
+            @RequestParam(value = "tamanho", defaultValue = "10") Integer size,
+            @RequestParam(value = "ordenacao", defaultValue = "id,asc") String sort) {
+
+        List<String> camposPermitidos = List.of("id", "nomeTipo");
+        String[] partes = sort.split(",");
+        String campo = partes[0];
+        Sort.Direction direcao = partes.length > 1 && partes[1].equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        if (!camposPermitidos.contains(campo)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Campo de ordenação inválido. Campos permitidos: " + camposPermitidos);
+        }
+
+        if (page < 0 || size <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Parâmetros de paginação inválidos. A página deve ser >= 0 e o tamanho > 0.");
+        }
+
+        PageRequest pr = PageRequest.of(page, size, Sort.by(direcao, campo));
+        Page<TipoUsuarioDTO> paginas_tipos_usuarios_dto = tipoUsuarioService.paginarTodosOsTiposDeUsuario(pr);
+
+        if (paginas_tipos_usuarios_dto.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum tipo de usuário encontrado no cache.");
+        }
+
+        return ResponseEntity.ok(paginas_tipos_usuarios_dto);
     }
 
     @Operation(summary = "Buscar tipo de usuário por ID")
@@ -51,13 +101,13 @@ public class TipoUsuarioController {
             @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
     })
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("buscarPorId/{id}")
+    @GetMapping("/buscar/id/{id}")
     public TipoUsuario retornaTipoUsuarioPorId(@PathVariable Long id) {
         if (id == null || id <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID do usuário não pode ser nulo ou menor que 1.");
         }
 
-        Optional <TipoUsuario> tipoUsuario = tipoUsuarioRepository.findById(id);
+        Optional <TipoUsuario> tipoUsuario = tipoUsuarioCachingService.findTipoUsuarioById(id);
         if (tipoUsuario.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tipo de usuário não encontrado.");
         }
