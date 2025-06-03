@@ -40,6 +40,6 @@ public class Ajuda {
     @Column(name = "DATA_PUBLICACAO", nullable = false)
     private LocalDateTime dataPublicacao;
 
-    @OneToMany(mappedBy = "AJUDA", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "ajuda", cascade = CascadeType.ALL)
     private List<Avaliacao> avaliacoes;
 }
