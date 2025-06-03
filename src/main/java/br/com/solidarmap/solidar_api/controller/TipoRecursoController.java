@@ -135,7 +135,10 @@ public class TipoRecursoController {
 
         TipoRecurso novoTipoRecurso = new TipoRecurso();
         novoTipoRecurso.setRecurso(tipoRecurso.getRecurso());
-        return tipoRecursoRepository.save(novoTipoRecurso);
+
+        TipoRecurso recursoSalvo = tipoRecursoRepository.save(novoTipoRecurso);
+        tipoRecursoCachingService.limparCache();
+        return recursoSalvo;
     }
 
     @Operation(summary = "Atualizar um tipo de recurso")
@@ -161,6 +164,7 @@ public class TipoRecursoController {
             tipoRecursoAtual.setRecurso(tipoRecursoRequestDTO.getRecurso());
 
             tipoRecursoRepository.save(tipoRecursoAtual);
+            tipoRecursoCachingService.limparCache();
             return tipoRecursoAtual;
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tipo de Recurso não encontrado com o ID: " + id);
@@ -181,6 +185,7 @@ public class TipoRecursoController {
         if (op.isPresent()) {
             TipoRecurso tipoRecurso = op.get();
             tipoRecursoRepository.delete(tipoRecurso);
+            tipoRecursoCachingService.limparCache();
             return tipoRecurso;
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tipo de recurso não encontrado com o ID: " + id);
