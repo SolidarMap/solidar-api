@@ -29,16 +29,16 @@ import java.util.Optional;
 public class LocalizacaoController {
 
     @Autowired
-    LocalizacaoRepository localizacaoRepository;
+    private LocalizacaoRepository localizacaoRepository;
 
     @Autowired
-    AjudaRepository ajudaRepository;
+    private AjudaRepository ajudaRepository;
 
     @Autowired
-    TipoZonaRepository tipoZonaRepository;
+    private TipoZonaRepository tipoZonaRepository;
 
     @Autowired
-    LocalizacaoCachingService localizacaoCachingService;
+    private LocalizacaoCachingService localizacaoCachingService;
 
     @Operation(summary = "Buscar localização por ID")
     @ApiResponses(value = {
@@ -132,12 +132,20 @@ public class LocalizacaoController {
     public Localizacao removerLocalizacao(@PathVariable Long id) {
         Optional<Localizacao> op = localizacaoCachingService.findLocalizacaoByIdModel(id);
 
+        if (id == null || id <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID da localização não pode ser nulo ou menor que 1.");
+        }
+
         if (op.isPresent()) {
             Localizacao localizacao = op.get();
             localizacaoRepository.delete(localizacao);
+            Ajuda ajuda = localizacao.getAjuda();
+            if (ajuda != null && "1".equals(String.valueOf(ajuda.getStatus()))) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A localização não pode ser removida, pois possui ajuda ativa vinculada.");
+            }
             localizacaoCachingService.limparCache();
             return localizacao;
-        } else {
+         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Localização não encontrada com o ID informado.");
         }
     }
