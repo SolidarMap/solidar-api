@@ -18,7 +18,6 @@ public class MensagemCachingService {
     @Autowired
     private MensagemRepository mensagemRepository;
 
-    // Precisa passar o req e idAjuda
     @Cacheable(value = "paginarMensagensPorIdAjuda", key = "#req.pageNumber + '-' + #req.pageSize + '-' + #req.sort.toString() + '-' + #id")
     public Page<MensagemDTO> paginarMensagensPorIdAjuda(PageRequest req, Long id) {
         Page<Mensagem> mensagens = mensagemRepository.findMensagensByIdAjuda(id, req);
