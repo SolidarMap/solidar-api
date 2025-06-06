@@ -123,6 +123,7 @@ public class LocalizacaoController {
     @Operation(summary = "Deletar uma localização")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Localização deletado com sucesso."),
+        @ApiResponse(responseCode = "400", description = "ID inválido ou não pode ser nulo.", content = @Content(schema = @Schema(hidden = true))),
         @ApiResponse(responseCode = "404", description = "Localização não encontrada com o ID informado.", content = @Content(schema = @Schema(hidden = true))),
         @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
     })
@@ -138,13 +139,14 @@ public class LocalizacaoController {
 
         if (op.isPresent()) {
             Localizacao localizacao = op.get();
-            localizacaoRepository.delete(localizacao);
             Ajuda ajuda = localizacao.getAjuda();
             if (ajuda != null && "1".equals(String.valueOf(ajuda.getStatus()))) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A localização não pode ser removida, pois possui ajuda ativa vinculada.");
+            } else {
+                localizacaoRepository.delete(localizacao);
+                localizacaoCachingService.limparCache();
+                return localizacao;
             }
-            localizacaoCachingService.limparCache();
-            return localizacao;
          } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Localização não encontrada com o ID informado.");
         }
