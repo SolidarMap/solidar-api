@@ -27,4 +27,5 @@ public class LocalizacaoDTO {
         this.latitude = localizacao.getLatitude();
         this.longitude = localizacao.getLongitude();
     }
+
 }
