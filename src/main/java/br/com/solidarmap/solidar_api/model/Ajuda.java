@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,6 +41,4 @@ public class Ajuda {
     @Column(name = "DATA_PUBLICACAO", nullable = false)
     private LocalDateTime dataPublicacao;
 
-    @OneToMany(mappedBy = "ajuda", cascade = CascadeType.ALL)
-    private List<Avaliacao> avaliacoes;
 }
