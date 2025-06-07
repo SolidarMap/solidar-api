@@ -26,7 +26,7 @@ API RESTful desenvolvida em Java com o framework Spring Boot, focada na gestão 
 
 ## 💻 Inicializar projeto
 
-Para iniciar o projeto faz se necessário seguir algumas etapas abaixo:
+Para iniciar o projeto faz-se necessário seguir algumas etapas abaixo:
 
 ### 📝 Pré-requisitos
 
@@ -37,16 +37,63 @@ Para iniciar o projeto faz se necessário seguir algumas etapas abaixo:
 ### 🗃️ Instalação
 1. Clone o repositório para a sua pasta:
     ```sh
-    https://github.com/SolidarMap/solidar-api.git
+    git clone https://github.com/SolidarMap/solidar-api.git
     ```
-2. Acesse a pasta onde você colocou seu projeto.
-3. Copile e execute o projeto:
-   ```sh
-   mvn spring-boot:run
-   ```
+2. Acesse a pasta onde você colocou seu projeto:
+    ```sh
+    cd solidar-api
+    ```
+3. Copile e execute o projeto (caso possua Maven instalado):
+    ```sh
+    mvn spring-boot:run
+    ```
 4. Acesse o Swagger para testar os endpoints:
-   ```link
-   http://localhost:8080/swagger-ui/index.html
-   ```
-   OBS: Projeto utiliza Banco de Dados Oracle da FIAP, veja o modelo do .env.example para realizar a inserção do `Usuário` e `Senha`. (Após colocar as credenciais do Database, tire o `.example` do .env.)
+    ```text
+    http://localhost:8080/swagger-ui/index.html
+    ```
+📌 **OBS:** O projeto utiliza Banco de Dados Oracle da FIAP. Veja o modelo do `.env.example` para inserir o `USUARIO` e `SENHA`. Após configurar, renomeie o arquivo para `.env`.
+
 <p align="right"><a href="#readme-top">Voltar ao topo</a></p>
+
+## 🧑‍💻 Executando o projeto via IDE
+
+Você pode rodar o projeto diretamente pelas IDEs abaixo:
+
+### 🟦 IntelliJ IDEA
+
+1. Abra o IntelliJ IDEA.
+2. Clique em **File > Open** e selecione a pasta `solidar-api`.
+3. O IntelliJ detectará o projeto Maven e fará a importação automática.
+4. Certifique-se de que o SDK está como **Java 17 ou superior**:
+   - Vá em **File > Project Structure > Project SDK**.
+5. Navegue até a classe principal:
+   - `src/main/java/br/com/solidarmap/solidar_api/SolidarApiApplication.java`
+6. Clique com o botão direito na classe e selecione **Run 'SolidarApiApplication'**.
+7. O projeto será iniciado e poderá ser acessado em:
+   - `http://localhost:8080/swagger-ui/index.html`
+
+<p align="right"><a href="#readme-top">Voltar ao topo</a></p>
+
+
+### 🟨 Eclipse
+1. Abra o Eclipse.
+2. Vá em **File > Import > Maven > Existing Maven Projects**.
+3. Selecione a pasta `solidar-api` que foi clonada.
+4. Clique em **Finish** para importar.
+5. Certifique-se de que o JDK está como **Java 17 ou superior**:
+   - Clique com o botão direito no projeto → **Build Path > Configure Build Path**.
+6. Navegue até a classe:
+    - `src/main/java/br/com/solidarmap/solidar_api/SolidarApiApplication.java`
+7. Clique com o botão direito nela → **Run As > Java Application**.
+8. A aplicação será iniciada em:
+    - `http://localhost:8080/swagger-ui/index.html`
+
+### 🪟 Dica para Windows com Maven Wrapper
+Se estiver usando Windows e **não tem Maven instalado**, use o Maven Wrapper:
+
+```cmd
+.\mvnw.cmd spring-boot:run
+```
+   
+<p align="right"><a href="#readme-top">Voltar ao topo</a></p>
+
