@@ -22,11 +22,11 @@ public class Avaliacao {
     @Column(name = "ID_AVALIACAO")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ID_USUARIO", nullable = false, foreignKey = @ForeignKey(name = "FK_AVALIACAO_USUARIO"))
     private Usuario usuario;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ID_AJUDA", nullable = false, foreignKey = @ForeignKey(name = "FK_AVALIACAO_AJUDA"))
     private Ajuda ajuda;
 
