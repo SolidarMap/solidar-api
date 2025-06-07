@@ -13,9 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AjudaService {
 
     @Autowired
-    private AjudaRepository ajudaRepository;
-
-    @Autowired
     private AjudaCachingService ajudaCachingService;
 
     @Transactional(readOnly = true)

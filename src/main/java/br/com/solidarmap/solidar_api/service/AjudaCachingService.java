@@ -20,7 +20,8 @@ public class AjudaCachingService {
 
     @Cacheable(value = "buscarTodasAjudas")
     public List<AjudaDTO> listarTodasAjudas() {
-        return ajudaRepository.findAllAjudas();
+        List<Ajuda> ajudas = ajudaRepository.findAll(); // sem fetch
+        return ajudas.stream().map(AjudaDTO::new).toList();
     }
 
     @Cacheable(value = "buscarPaginaAjudas", key = "#req")
@@ -34,10 +35,7 @@ public class AjudaCachingService {
         return ajudas.map(AjudaDTO::new);
     }
 
-
-
-
-    @CacheEvict(value = {"buscarTodasAjudas", "buscarPaginaAjudas"}, allEntries = true)
+    @CacheEvict(value = {"buscarTodasAjudas", "buscarPaginaAjudas", "paginarAjudasPorIdUsuario"}, allEntries = true)
     public void limparCache() {
         System.out.println("Cache de ajudas limpo com sucesso.");
     }
