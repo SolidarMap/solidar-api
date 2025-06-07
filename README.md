@@ -74,6 +74,7 @@ Você pode rodar o projeto diretamente pelas IDEs abaixo:
 
 <p align="right"><a href="#readme-top">Voltar ao topo</a></p>
 
+---
 
 ### 🟨 Eclipse
 1. Abra o Eclipse.
@@ -87,6 +88,8 @@ Você pode rodar o projeto diretamente pelas IDEs abaixo:
 7. Clique com o botão direito nela → **Run As > Java Application**.
 8. A aplicação será iniciada em:
     - `http://localhost:8080/swagger-ui/index.html`
+
+---
 
 ### 🪟 Dica para Windows com Maven Wrapper
 Se estiver usando Windows e **não tem Maven instalado**, use o Maven Wrapper:
