@@ -147,7 +147,6 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Tipo de usuário não encontrado.", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", description = "Usuário não autenticado.", content = @Content(schema = @Schema(hidden = true)))
     })
-    @SecurityRequirement(name = "Bearer Authentication")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/inserir")
     public Usuario inserirUsuario(@RequestBody  @Valid InserirUsuarioRequestDTO usuario) {
