@@ -34,7 +34,8 @@ public class SegurancaConfig {
                                         "/configuration/ui",
                                         "/configuration/security",
                                         "/webjars/**",
-                                        "/auth/**")
+                                        "/auth/**",
+                                        "/usuario/inserir")
                                 .permitAll().anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(servidor ->
