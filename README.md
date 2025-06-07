@@ -1,6 +1,6 @@
 <a id="readme-top"></a>
 
-# 📱 Challange - Mottu - Java API - Find Mottu
+# 📱 Global Solution - SolidarMap - Java API
 
 ![Static Badge](https://img.shields.io/badge/build-passing-brightgreen) ![Static Badge](https://img.shields.io/badge/Version-1.0.0-black) ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
