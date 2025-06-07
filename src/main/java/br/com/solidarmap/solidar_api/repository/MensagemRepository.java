@@ -12,8 +12,14 @@ import java.util.List;
 
 public interface MensagemRepository extends JpaRepository<Mensagem, Long> {
 
-    @Query(value = "SELECT * FROM T_SMP_MENSAGENS", nativeQuery = true)
+    @Query("""
+    SELECT new br.com.solidarmap.solidar_api.dto.MensagemDTO(
+        m.id, m.ajuda.id, m.usuario.id, m.mensagem, m.dataEnvio
+    )
+    FROM Mensagem m
+""")
     List<MensagemDTO> findAllMensagens();
+
 
     @Query("SELECT m FROM Mensagem m WHERE m.ajuda.id = :idAjuda")
     Page<Mensagem> findMensagensByIdAjuda(@Param("idAjuda") Long idAjuda, Pageable pageable);
